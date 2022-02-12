@@ -1,0 +1,72 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+    // id 'maven'
+}
+
+targetCompatibility = sourceCompatibility = JavaVersion.VERSION_17
+
+archivesBaseName = project.main_name
+version = project.main_version
+group = project.main_group
+
+repositories {
+    maven { url "https://libraries.minecraft.net/" }
+    mavenCentral()
+}
+
+def asmVersion = '9.2'
+
+dependencies {
+    implementation 'net.sf.jopt-simple:jopt-simple:5.0.4'
+    // implementation 'org.ow2.asm:asm-debug-all:5.0.3'
+    // implementation 'org.lwjgl.lwjgl:lwjgl:2.9.1'
+    implementation 'org.apache.logging.log4j:log4j-core:2.17.0'
+    implementation 'org.apache.logging.log4j:log4j-api:2.17.0'
+}
+
+/*
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+*/
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    archiveClassifier = 'sources'
+}
+
+artifacts {
+    archives jar
+    archives sourcesJar
+}
+
+publishing {
+
+    repositories {
+        maven {
+            // url "${projectDir}/build"
+            url "$buildDir/maven"
+        }
+    }
+    /*
+    repositories {
+        def ENV = System.getenv()
+        if (ENV.MAVEN_URL) {
+            maven {
+                url ENV.MAVEN_URL
+            }
+        }
+    }
+    */
+    publications {
+        mavenJava(MavenPublication) {
+            groupId project.group
+            artifactId project.name
+            version project.version
+            from components.java
+            artifact sourcesJar
+        }
+    }
+}
